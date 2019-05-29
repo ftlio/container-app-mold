@@ -45,6 +45,8 @@ DOCKER_RUN_ARGS ?= \
 	-it --rm \
 	--name="$(LOCAL_CONTAINER)" \
 	--env-file=conf-app.env \
+	-v "$(base_dir)/$(LOCAL_MNT_DATA):$(APP_MNT_EXAMPLE)" \
+	-p "$(APP_PORT_EXAMPLE):$(LOCAL_PORT_EXAMPLE)" \
 
 # Dev Docker Run Args
 DEV_RUN_ARGS ?= \
@@ -58,6 +60,8 @@ DOCKER_BUILD_ARGS ?= \
 	$(DOCKER_CONTEXT)
 
 # Docker Build Targets
+default: build run
+
 .PHONY: build
 build: local-builds
 	@echo Building $(LOCAL_IMAGE)
@@ -150,14 +154,17 @@ $(LOCAL_BUILDS)/.gitignore:
 
 # Local resources
 local-resources: \
-	$(LOCAL_MNT) \
-	$(LOCAL_MNT)/.gitignore
+	$(LOCAL_MNT)/ \
+	$(LOCAL_MNT_DATA)	\
+	$(LOCAL_MNT)/.gitignore \
 
-$(LOCAL_MNT):
-	mkdir -p $(LOCAL_MNT)
+$(LOCAL_MNT) $(LOCAL_MNT)/%:
+	mkdir -p $@
 
 $(LOCAL_MNT)/.gitignore:
 	echo "*" > $@
+
+
 
 # TODO - Add clean-docker to try and track down images, containers, etc
 clean:
